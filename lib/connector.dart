@@ -1,6 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+class ConnectorResponse {
+  final String url;
+  final String drmToken;
+
+  ConnectorResponse({
+    required this.url,
+    this.drmToken = '',
+  });
+}
+
 @immutable
 class Connector {
   static const String api = 'https://ocistreaming.madhonk.org/dri.php';
@@ -10,16 +20,15 @@ class Connector {
 
   Connector copyWith({required String pin}) => Connector(pin: pin);
 
-  Future<String> getStaticStream({required String id}) async {
-    String url = await _call(ep: 'static', chid: id);
-    return url.toString();
-  }
-
-  Future<dynamic> _call({required String ep, required String chid}) async {
+  Future<ConnectorResponse> getStream({required String id, required String ep}) async {
     final dio = Dio();
-    Response res = await dio.get('$api?pin=$pin&ep=$ep&chid=$chid');
+    Response res = await dio.get('$api?pin=$pin&ep=$ep&chid=$id',
+        options: Options(
+          contentType: Headers.jsonContentType,
+          responseType: ResponseType.json,
+        ));
     if (res.statusCode == 200) {
-      return res.data;
+      return ConnectorResponse(url: res.data['url'] ?? '', drmToken: res.data['drmToken'] ?? '');
     } else {
       throw Exception('Fetch Error');
     }

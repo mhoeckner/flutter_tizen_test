@@ -1,24 +1,46 @@
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_tizen_test/connector.dart';
+import 'package:logger/logger.dart';
 import 'package:video_player_videohole/video_player.dart';
+import 'package:video_player_videohole/video_player_platform_interface.dart';
+import 'package:dio/dio.dart';
 
 void main() {
+  const String defaultAuth = String.fromEnvironment('defaultAuth', defaultValue: '');
   runApp(
-    MaterialApp(
-      home: _App(),
+    const MaterialApp(
+      home: _App(
+        defaultAuth: defaultAuth,
+      ),
     ),
   );
 }
 
 class _App extends StatelessWidget {
+  final String defaultAuth;
+
+  const _App({
+    required this.defaultAuth,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return const InputWidget();
+    return InputWidget(
+      defaultAuth: defaultAuth,
+    );
   }
 }
 
 class InputWidget extends StatefulWidget {
-  const InputWidget({super.key});
+  final String defaultAuth;
+
+  const InputWidget({
+    super.key,
+    required this.defaultAuth,
+  });
 
   @override
   State<InputWidget> createState() => _InputWidgetState();
@@ -26,7 +48,14 @@ class InputWidget extends StatefulWidget {
 
 class _InputWidgetState extends State<InputWidget> {
   Connector connector = const Connector(pin: '');
-  final textController = TextEditingController(text: '03062022');
+  late TextEditingController textController;
+  final logger = Logger();
+
+  @override
+  void initState() {
+    textController = TextEditingController(text: widget.defaultAuth);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +72,7 @@ class _InputWidgetState extends State<InputWidget> {
                     maxLength: 20,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: 'Enter Pin',
+                      hintText: 'Enter authentication',
                     ),
                   ),
                   ElevatedButton(
@@ -66,7 +95,7 @@ class _InputWidgetState extends State<InputWidget> {
             ),
           )
         : DefaultTabController(
-            length: 2,
+            length: 7,
             child: Scaffold(
               key: const ValueKey<String>('dash_test_player'),
               appBar: AppBar(
@@ -76,11 +105,31 @@ class _InputWidgetState extends State<InputWidget> {
                   tabs: <Widget>[
                     Tab(
                       icon: Icon(Icons.cloud),
-                      text: "DASH Template",
+                      text: "Static 1",
                     ),
                     Tab(
                       icon: Icon(Icons.cloud),
-                      text: "DASH Segments",
+                      text: "Static 2",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Static 3",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 1",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 2",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 3",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 4",
                     ),
                   ],
                 ),
@@ -88,14 +137,60 @@ class _InputWidgetState extends State<InputWidget> {
               body: TabBarView(
                 children: <Widget>[
                   _DashRomoteVideo(
-                    text: 'DASH with template',
+                    text: 'Bento4 Packager: FreeToAir DASH with template for segments',
                     id: '100',
                     connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'static',
                   ),
                   _DashRomoteVideo(
-                    text: 'DASH without template - segments',
+                    text: 'Bento4 Packager: FreeToAir DASH without segment list',
                     id: '101',
                     connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'static',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'Bento4 Packager: DRM DASH - Widevine',
+                    id: '102',
+                    connector: connector,
+                    drm: true,
+                    logger: logger,
+                    ep: 'static',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'OCI Packager: DASH Live Stream FreeToAir',
+                    id: '115',
+                    connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'stream',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'OCI Packager: DASH Live Stream DRM Widevine',
+                    id: '85',
+                    connector: connector,
+                    drm: true,
+                    logger: logger,
+                    ep: 'stream',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'OCI Packager: DASH Static FreeToAir',
+                    id: '457',
+                    connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'pvr',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'OCI Packager: DASH DRM Static',
+                    id: '459',
+                    connector: connector,
+                    drm: true,
+                    logger: logger,
+                    ep: 'pvr',
                   ),
                 ],
               ),
@@ -108,8 +203,18 @@ class _DashRomoteVideo extends StatefulWidget {
   final String text;
   final Connector connector;
   final String id;
+  final String ep;
+  final bool drm;
+  final Logger logger;
 
-  const _DashRomoteVideo({required this.text, required this.id, required this.connector});
+  const _DashRomoteVideo({
+    required this.text,
+    required this.id,
+    required this.connector,
+    required this.ep,
+    required this.drm,
+    required this.logger,
+  });
 
   @override
   State<_DashRomoteVideo> createState() => _DashRomoteVideoState();
@@ -122,19 +227,60 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   @override
   void initState() {
     super.initState();
-    widget.connector.getStaticStream(id: widget.id).then((String url) {
-      print('start $url');
-      _controller = VideoPlayerController.network(url);
 
-      _controller.addListener(() {
-        setState(() {});
-      });
-      _controller.setLooping(false);
-      _controller.initialize().then((_) => setState(() {
-            streamingUrl = url;
-            _controller.play();
-          }));
+    widget.connector
+        .getStream(id: widget.id, ep: widget.ep)
+        .then((ConnectorResponse response) => _startStream(response: response));
+  }
+
+  void _startStream({required ConnectorResponse response}) {
+    if (!widget.drm) {
+      widget.logger.i('start free to air stream ${response.url}');
+      _controller = VideoPlayerController.network(response.url);
+    } else {
+      widget.logger.i('start drm protecter stream ${response.url}');
+      _controller = VideoPlayerController.network(
+        response.url,
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: true,
+          allowBackgroundPlayback: true,
+        ),
+        formatHint: VideoFormat.dash,
+        drmConfigs: DrmConfigs(
+          type: DrmType.widevine,
+          licenseCallback: (Uint8List challenge) async {
+            final dio = Dio();
+            widget.logger.d('send license request to vmx license server...');
+            return dio
+                .post(
+              'https://multidrm.core.verimatrixcloud.net/widevine',
+              data: Stream.fromIterable(challenge.map((e) => [e])),
+              options: Options(
+                responseType: ResponseType.bytes,
+                headers: {
+                  'authorization': response.drmToken,
+                },
+              ),
+            )
+                .then(
+              (response) {
+                widget.logger.d('got response from license server - send license key to player');
+                return response.data;
+              },
+            );
+          },
+        ),
+      );
+    }
+
+    _controller.addListener(() {
+      setState(() {});
     });
+    _controller.setLooping(false);
+    _controller.initialize().then((_) => setState(() {
+          streamingUrl = response.url;
+          _controller.play();
+        }));
   }
 
   @override
@@ -146,7 +292,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   @override
   Widget build(BuildContext context) {
     return streamingUrl.isEmpty
-        ? const CircularProgressIndicator()
+        ? const Center(child: CircularProgressIndicator())
         : Column(
             children: <Widget>[
               Container(
