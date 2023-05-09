@@ -33,10 +33,11 @@ dependencies:
     sdk: flutter
 
   video_player_videohole:
-    git:
-      url: https://github.com/flutter-tizen/plugins.git
-      path: packages/video_player_videohole
-      ref: video_player_videohole
+    path: "../flutter_tizen_plugins/packages/video_player_videohole"
+    #git:
+    #  url: https://github.com/flutter-tizen/plugins.git
+    #  path: packages/video_player_videohole
+    #  ref: c06c8e47bf1a97f788a966a8ae8f59f515492089
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -236,7 +235,14 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   void _startStream({required ConnectorResponse response}) {
     if (!widget.drm) {
       widget.logger.i('start free to air stream ${response.url}');
-      _controller = VideoPlayerController.network(response.url);
+      _controller = VideoPlayerController.network(
+        response.url,
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: true,
+          allowBackgroundPlayback: true,
+        ),
+        formatHint: VideoFormat.dash,
+      );
     } else {
       widget.logger.i('start drm protecter stream ${response.url}');
       _controller = VideoPlayerController.network(
