@@ -251,10 +251,12 @@ packages:
   video_player_videohole:
     dependency: "direct main"
     description:
-      path: "../flutter_tizen_plugins/packages/video_player_videohole"
-      relative: true
-    source: path
-    version: "1.0.0"
+      path: "packages/video_player_videohole"
+      ref: e4e6db240d44da6fb502e8aa805e4ceadaae8221
+      resolved-ref: e4e6db240d44da6fb502e8aa805e4ceadaae8221
+      url: "https://github.com/flutter-tizen/plugins.git"
+    source: git
+    version: "0.1.0"
 sdks:
   dart: ">=2.18.4 <3.0.0"
   flutter: ">=3.0.0"
