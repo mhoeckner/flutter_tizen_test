@@ -77,10 +77,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: a38574032c5f1dd06c4aee541789906c12ccaab8ba01446e800d9c5b79c4a978
+      sha256: ed5337a5660c506388a9f012be0288fb38b49020ce2b45fe1f8b8323fe429f99
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.2"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -103,10 +103,10 @@ packages:
     dependency: transitive
     description:
       name: html
-      sha256: d9793e10dbe0e6c364f4c59bf3e01fb33a9b2a674bc7a1081693dba0614b6269
+      sha256: "58e3491f7bf0b6a4ea5110c0c688877460d1a6366731155c4a4580e7ded773e8"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.1"
+    version: "0.15.3"
   http_parser:
     dependency: transitive
     description:
@@ -175,10 +175,10 @@ packages:
     dependency: transitive
     description:
       name: plugin_platform_interface
-      sha256: dbf0f707c78beedc9200146ad3cb0ab4d5da13c246336987be6940f026500d3a
+      sha256: "6a2128648c854906c53fa8e33986fc0247a1116122f9534dd20e3ab9e16a32bc"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.3"
+    version: "2.1.4"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -251,12 +251,11 @@ packages:
   video_player_videohole:
     dependency: "direct main"
     description:
-      path: "packages/video_player_videohole"
-      ref: e4e6db240d44da6fb502e8aa805e4ceadaae8221
-      resolved-ref: e4e6db240d44da6fb502e8aa805e4ceadaae8221
-      url: "https://github.com/flutter-tizen/plugins.git"
-    source: git
-    version: "0.1.0"
+      name: video_player_videohole
+      sha256: "7be000bc70f3e89f028f6ac6aca71839b3044c72413695fe50f985fba1e86bde"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
 sdks:
   dart: ">=2.18.4 <3.0.0"
   flutter: ">=3.0.0"
