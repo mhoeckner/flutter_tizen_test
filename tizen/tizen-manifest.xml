@@ -11,11 +11,11 @@
     <tv-info api-version="8.8.0">
         <infolink>T-INFOLINK2021-1000</infolink>
     </tv-info>
-    <feature name="http://tizen.org/feature/screen.size.all" />
     <privileges>
         <privilege>http://tizen.org/privilege/mediastorage</privilege>
         <privilege>http://tizen.org/privilege/externalstorage</privilege>
         <privilege>http://tizen.org/privilege/internet</privilege>
         <privilege>http://developer.samsung.com/privilege/drmplay</privilege>
     </privileges>
+    <feature name="http://tizen.org/feature/screen.size.all" />
 </manifest>
