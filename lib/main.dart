@@ -177,7 +177,7 @@ class _InputWidgetState extends State<InputWidget> {
                   ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH Static FreeToAir',
-                    id: '460',
+                    id: '2',
                     connector: connector,
                     drm: false,
                     logger: logger,
@@ -185,7 +185,7 @@ class _InputWidgetState extends State<InputWidget> {
                   ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH DRM Static',
-                    id: '459',
+                    id: '1',
                     connector: connector,
                     drm: true,
                     logger: logger,
