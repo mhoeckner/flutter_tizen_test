@@ -3,12 +3,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_tizen_test/connector.dart';
 import 'package:logger/logger.dart';
-import 'package:video_player_videohole/video_player.dart';
-import 'package:video_player_videohole/video_player_platform_interface.dart';
+import 'package:video_player_plusplayer/video_player.dart';
+import 'package:video_player_plusplayer/video_player_platform_interface.dart';
 import 'package:dio/dio.dart';
 
 void main() {
-  const String defaultAuth = String.fromEnvironment('defaultAuth', defaultValue: '');
+  const String defaultAuth =
+      String.fromEnvironment('defaultAuth', defaultValue: '');
   runApp(
     const MaterialApp(
       home: _App(
@@ -77,7 +78,8 @@ class _InputWidgetState extends State<InputWidget> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       elevation: 3,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0)),
                       minimumSize: const Size(150, 40),
                     ),
                     child: const Text(
@@ -85,7 +87,8 @@ class _InputWidgetState extends State<InputWidget> {
                     ),
                     onPressed: () {
                       setState(() {
-                        connector = connector.copyWith(pin: textController.text);
+                        connector =
+                            connector.copyWith(pin: textController.text);
                       });
                     },
                   ),
@@ -136,7 +139,8 @@ class _InputWidgetState extends State<InputWidget> {
               body: TabBarView(
                 children: <Widget>[
                   _DashRomoteVideo(
-                    text: 'Bento4 Packager: FreeToAir DASH with template for segments',
+                    text:
+                        'Bento4 Packager: FreeToAir DASH with template for segments',
                     id: '100',
                     connector: connector,
                     drm: false,
@@ -144,7 +148,8 @@ class _InputWidgetState extends State<InputWidget> {
                     ep: 'static',
                   ),
                   _DashRomoteVideo(
-                    text: 'Bento4 Packager: FreeToAir DASH without segment list',
+                    text:
+                        'Bento4 Packager: FreeToAir DASH without segment list',
                     id: '101',
                     connector: connector,
                     drm: false,
@@ -270,7 +275,8 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
             )
                 .then(
               (response) {
-                widget.logger.d('got response from license server - send license key to player');
+                widget.logger.d(
+                    'got response from license server - send license key to player');
                 return response.data;
               },
             );
