@@ -330,15 +330,15 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
         }
         return KeyEventResult.ignored;
       },
-      child: streamingUrl.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.only(top: 20.0),
-                ),
-                Text(widget.text),
-                Container(
+      child: Column(
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.only(top: 20.0),
+          ),
+          Text(widget.text),
+          streamingUrl.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : Container(
                   padding: const EdgeInsets.fromLTRB(200, 0, 200, 0),
                   child: AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
@@ -352,8 +352,8 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
                     ),
                   ),
                 ),
-              ],
-            ),
+        ],
+      ),
     );
   }
 }
