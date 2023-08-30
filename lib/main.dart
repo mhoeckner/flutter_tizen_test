@@ -93,7 +93,7 @@ class _InputWidgetState extends State<InputWidget> {
             ),
           )
         : DefaultTabController(
-            length: 8,
+            length: 9,
             initialIndex: 0,
             child: Scaffold(
               key: const ValueKey<String>('dash_test_player'),
@@ -117,6 +117,10 @@ class _InputWidgetState extends State<InputWidget> {
                     Tab(
                       icon: Icon(Icons.cloud),
                       text: "Static 4",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Static 5",
                     ),
                     Tab(
                       icon: Icon(Icons.cloud),
@@ -156,8 +160,16 @@ class _InputWidgetState extends State<InputWidget> {
                     ep: 'static',
                   ),
                   _DashRomoteVideo(
-                    text: 'Bento4 Packager: FreeToAir DASH with template and timeline',
+                    text: 'Bento4 Packager: FreeToAir DASH with template and timeline - start 0',
                     id: '104',
+                    connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'static',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'Bento4 Packager: FreeToAir DASH with template and timeline - start timestamp',
+                    id: '105',
                     connector: connector,
                     drm: false,
                     logger: logger,
