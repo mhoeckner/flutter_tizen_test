@@ -160,7 +160,7 @@ class _InputWidgetState extends State<InputWidget> {
                     ep: 'static',
                   ),
                   _DashRomoteVideo(
-                    text: 'Bento4 Packager: FreeToAir DASH with template and timeline - start 0',
+                    text: 'Bento4 Packager: FreeToAir DASH with template and timeline - presentationTimeOffset=0',
                     id: '104',
                     connector: connector,
                     drm: false,
@@ -168,7 +168,8 @@ class _InputWidgetState extends State<InputWidget> {
                     ep: 'static',
                   ),
                   _DashRomoteVideo(
-                    text: 'Bento4 Packager: FreeToAir DASH with template and timeline - start timestamp',
+                    text:
+                        'Bento4 Packager: FreeToAir DASH with template and timeline - presentationTimeOffset=5743137783614400 ',
                     id: '105',
                     connector: connector,
                     drm: false,
@@ -201,7 +202,7 @@ class _InputWidgetState extends State<InputWidget> {
                   ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH Static FreeToAir',
-                    id: '472',
+                    id: '476',
                     connector: connector,
                     drm: false,
                     logger: logger,
@@ -307,10 +308,6 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
         ),
       );
     }
-
-    _controller.addListener(() {
-      setState(() {});
-    });
     _controller.setLooping(false);
     _controller.initialize().then(
           (_) => setState(
