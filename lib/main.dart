@@ -247,6 +247,7 @@ class _DashRomoteVideo extends StatefulWidget {
 class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   String streamingUrl = '';
   late VideoPlayerController _controller;
+  AppValueNotifier appValueNotifier = AppValueNotifier();
 
   @override
   void initState() {
@@ -309,6 +310,9 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
       );
     }
     _controller.setLooping(false);
+
+    _controller.addListener(_updateValueListener);
+
     _controller.initialize().then(
           (_) => setState(
             () {
@@ -323,6 +327,11 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _updateValueListener() {
+    appValueNotifier.streamInformationUpdateNotifier(
+        data: StreamInformationStatusData(position: _controller.value.position));
   }
 
   @override
@@ -345,6 +354,13 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
             padding: const EdgeInsets.only(top: 20.0),
           ),
           Text(widget.text),
+          ValueListenableBuilder(
+            valueListenable: appValueNotifier.valueNotifier,
+            builder: (BuildContext context, dynamic tvalue, Widget? child) {
+              StreamInformationStatusData data = tvalue as StreamInformationStatusData;
+              return Text('stream position: ${data.position.toString()}');
+            },
+          ),
           streamingUrl.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : Container(
@@ -364,5 +380,19 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
         ],
       ),
     );
+  }
+}
+
+class StreamInformationStatusData {
+  final Duration position;
+
+  StreamInformationStatusData({required this.position});
+}
+
+class AppValueNotifier {
+  ValueNotifier<StreamInformationStatusData> valueNotifier =
+      ValueNotifier(StreamInformationStatusData(position: const Duration(seconds: 0)));
+  void streamInformationUpdateNotifier({required StreamInformationStatusData data}) {
+    valueNotifier.value = data;
   }
 }
