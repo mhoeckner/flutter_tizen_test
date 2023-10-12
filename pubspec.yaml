@@ -37,13 +37,12 @@ dependencies:
   cupertino_icons: ^1.0.2
   dio: ^5.1.1
   logger: ^1.3.0
-  # video_player_videohole: ^0.1.1
-  video_player_plusplayer:
-    #path: "/Users/markushockner/src/github/flutter_tizen_plugins_hyue7/packages/video_player_plusplayer"
+
+  video_player_avplayer:
     git:
-      url: https://github.com/hyue7/plugins.git
-      path: packages/video_player_plusplayer
-      ref: video_player_plusplayer
+      url: https://github.com/xiaowei-guan/plugins.git
+      path: packages/video_player_avplayer
+      ref: avplayer
 
   #video_player_videohole:
   #  #path: "../flutter_tizen_plugins/packages/video_player_videohole"

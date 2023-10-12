@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tizen_test/connector.dart';
 import 'package:logger/logger.dart';
-import 'package:video_player_plusplayer/video_player.dart';
 import 'package:dio/dio.dart';
+import 'package:video_player_avplayer/video_player.dart';
+import 'package:video_player_avplayer/video_player_platform_interface.dart';
 
 void main() {
   const String defaultAuth = String.fromEnvironment('defaultAuth', defaultValue: '');
@@ -263,25 +264,11 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
       widget.logger.i('start free to air stream ${response.url}');
       _controller = VideoPlayerController.network(
         response.url,
-        /*
-        videoPlayerOptions: VideoPlayerOptions(
-          mixWithOthers: true,
-          allowBackgroundPlayback: true,
-        ),
-        formatHint: VideoFormat.dash,
-        */
       );
     } else {
       widget.logger.i('start drm protected stream ${response.url}');
       _controller = VideoPlayerController.network(
         response.url,
-        /*
-        videoPlayerOptions: VideoPlayerOptions(
-          mixWithOthers: true,
-          allowBackgroundPlayback: true,
-        ),
-        formatHint: VideoFormat.dash,
-        */
         drmConfigs: DrmConfigs(
           type: DrmType.widevine,
           licenseCallback: (Uint8List challenge) async {
