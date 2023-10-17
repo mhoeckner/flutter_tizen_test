@@ -94,7 +94,7 @@ class _InputWidgetState extends State<InputWidget> {
             ),
           )
         : DefaultTabController(
-            length: 9,
+            length: 11,
             initialIndex: 0,
             child: Scaffold(
               key: const ValueKey<String>('dash_test_player'),
@@ -138,6 +138,14 @@ class _InputWidgetState extends State<InputWidget> {
                     Tab(
                       icon: Icon(Icons.cloud),
                       text: "Stream 4",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 5",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 6",
                     ),
                   ],
                 ),
@@ -216,6 +224,22 @@ class _InputWidgetState extends State<InputWidget> {
                     drm: true,
                     logger: logger,
                     ep: 'pvr',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'DASH Low Latency Harmonic Live Stream',
+                    id: '1',
+                    connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'stream',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'DASH Akamai Live Stream',
+                    id: '2',
+                    connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'stream',
                   ),
                 ],
               ),
