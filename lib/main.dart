@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_tizen_test/connector.dart';
 import 'package:logger/logger.dart';
 import 'package:dio/dio.dart';
-import 'package:video_player_avplayer/video_player.dart';
-import 'package:video_player_avplayer/video_player_platform_interface.dart';
+import 'package:video_player_avplay/video_player.dart';
+import 'package:video_player_avplay/video_player_platform_interface.dart';
 
 void main() {
   const String defaultAuth = String.fromEnvironment('defaultAuth', defaultValue: '');
@@ -94,7 +94,7 @@ class _InputWidgetState extends State<InputWidget> {
             ),
           )
         : DefaultTabController(
-            length: 11,
+            length: 8,
             initialIndex: 0,
             child: Scaffold(
               key: const ValueKey<String>('dash_test_player'),
@@ -110,18 +110,6 @@ class _InputWidgetState extends State<InputWidget> {
                     Tab(
                       icon: Icon(Icons.cloud),
                       text: "Static 2",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Static 3",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Static 4",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Static 5",
                     ),
                     Tab(
                       icon: Icon(Icons.cloud),
@@ -155,31 +143,6 @@ class _InputWidgetState extends State<InputWidget> {
                   _DashRomoteVideo(
                     text: 'Bento4 Packager: FreeToAir DASH with template for segments',
                     id: '100',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'static',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'Bento4 Packager: FreeToAir DASH without segment list',
-                    id: '101',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'static',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'Bento4 Packager: FreeToAir DASH with template and timeline - presentationTimeOffset=0',
-                    id: '104',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'static',
-                  ),
-                  _DashRomoteVideo(
-                    text:
-                        'Bento4 Packager: FreeToAir DASH with template and timeline - presentationTimeOffset=5743137783614400 ',
-                    id: '105',
                     connector: connector,
                     drm: false,
                     logger: logger,
