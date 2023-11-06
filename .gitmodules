@@ -1,0 +1,3 @@
+[submodule "plugins/flutter_tizen_plugins_av_player"]
+	path = plugins/flutter_tizen_plugins_av_player
+	url = https://github.com/xiaowei-guan/plugins.git
