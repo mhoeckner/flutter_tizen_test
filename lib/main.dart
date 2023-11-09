@@ -95,7 +95,7 @@ class _InputWidgetState extends State<InputWidget> {
           )
         : DefaultTabController(
             length: 8,
-            initialIndex: 3,
+            initialIndex: 0,
             child: Scaffold(
               key: const ValueKey<String>('dash_test_player'),
               appBar: AppBar(
