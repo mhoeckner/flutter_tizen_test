@@ -40,7 +40,7 @@ dependencies:
 
   #https://github.com/xiaowei-guan/plugins.git
   video_player_avplay:
-    path: "./plugins/flutter_tizen_plugins_av_player/packages/video_player_avplay"
+    path: "./plugins/flutter_tizen_plugins_av_player_2/packages/video_player_avplay"
 
   #video_player_videohole:
   #  #path: "../flutter_tizen_plugins/packages/video_player_videohole"

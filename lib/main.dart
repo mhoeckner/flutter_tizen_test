@@ -94,8 +94,8 @@ class _InputWidgetState extends State<InputWidget> {
             ),
           )
         : DefaultTabController(
-            length: 8,
-            initialIndex: 2,
+            length: 6,
+            initialIndex: 0,
             child: Scaffold(
               key: const ValueKey<String>('dash_test_player'),
               appBar: AppBar(
@@ -103,14 +103,6 @@ class _InputWidgetState extends State<InputWidget> {
                 bottom: const TabBar(
                   isScrollable: true,
                   tabs: <Widget>[
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Static 1",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Static 2",
-                    ),
                     Tab(
                       icon: Icon(Icons.cloud),
                       text: "Stream 1",
@@ -140,22 +132,6 @@ class _InputWidgetState extends State<InputWidget> {
               ),
               body: TabBarView(
                 children: <Widget>[
-                  _DashRomoteVideo(
-                    text: 'Bento4 Packager: FreeToAir DASH with template for segments',
-                    id: '100',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'static',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'Bento4 Packager: DRM DASH - Widevine',
-                    id: '102',
-                    connector: connector,
-                    drm: true,
-                    logger: logger,
-                    ep: 'static',
-                  ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH Live Stream FreeToAir',
                     id: '115',
@@ -247,15 +223,20 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   }
 
   void _startStream({required ConnectorResponse response}) {
+    try {
+      _controller.dispose();
+    } catch (_) {}
     if (!widget.drm) {
       widget.logger.i('start free to air stream ${response.url}');
       _controller = VideoPlayerController.network(
         response.url,
+        formatHint: VideoFormat.dash,
       );
     } else {
       widget.logger.i('start drm protected stream ${response.url}');
       _controller = VideoPlayerController.network(
         response.url,
+        formatHint: VideoFormat.dash,
         drmConfigs: DrmConfigs(
           type: DrmType.widevine,
           licenseCallback: (Uint8List challenge) async {
@@ -308,11 +289,18 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
         data: StreamInformationStatusData(position: _controller.value.position));
   }
 
+  void _seekSeconds({required int seconds}) {
+    Duration newPosition =
+        seconds > 0 ? Duration(seconds: _controller.value.position.inSeconds + seconds) : Duration.zero;
+    widget.logger.i('seek to position $newPosition');
+    _controller.seekTo(newPosition);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Focus(
-      onKey: (node, event) {
-        if (event.runtimeType == RawKeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter) {
+      onKeyEvent: (node, event) {
+        if (event.runtimeType == KeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter) {
           try {
             widget.logger.i("try start stream...");
             _controller.play();
@@ -328,6 +316,41 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
             padding: const EdgeInsets.only(top: 20.0),
           ),
           Text(widget.text),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Wrap(),
+              ElevatedButton(
+                child: const Text(
+                  'Seek to start',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                onPressed: () {
+                  _seekSeconds(seconds: 0);
+                },
+              ),
+              ElevatedButton(
+                child: const Text(
+                  'Seek 5s back',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                onPressed: () {
+                  _seekSeconds(seconds: -5);
+                },
+              ),
+              ElevatedButton(
+                child: const Text(
+                  'Seek 5s forward',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                onPressed: () {
+                  _seekSeconds(seconds: 5);
+                },
+              ),
+              const Wrap()
+            ],
+          ),
           ValueListenableBuilder(
             valueListenable: appValueNotifier.valueNotifier,
             builder: (BuildContext context, dynamic tvalue, Widget? child) {
