@@ -266,7 +266,6 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
     }
 
     _controller.addListener(_updateValueListener);
-    _controller.setLooping(false);
 
     _controller.initialize().then(
           (_) => setState(
