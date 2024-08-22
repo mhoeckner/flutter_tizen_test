@@ -134,7 +134,7 @@ class _InputWidgetState extends State<InputWidget> {
                 children: <Widget>[
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH Live Stream FreeToAir',
-                    id: '115',
+                    id: '2366',
                     connector: connector,
                     drm: false,
                     logger: logger,
@@ -142,7 +142,7 @@ class _InputWidgetState extends State<InputWidget> {
                   ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH Live Stream DRM Widevine',
-                    id: '85',
+                    id: '2361',
                     connector: connector,
                     drm: true,
                     logger: logger,
@@ -150,7 +150,7 @@ class _InputWidgetState extends State<InputWidget> {
                   ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH Static FreeToAir',
-                    id: '476',
+                    id: '612',
                     connector: connector,
                     drm: false,
                     logger: logger,
@@ -158,7 +158,7 @@ class _InputWidgetState extends State<InputWidget> {
                   ),
                   _DashRomoteVideo(
                     text: 'OCI Packager: DASH DRM Static',
-                    id: '459',
+                    id: '733',
                     connector: connector,
                     drm: true,
                     logger: logger,
@@ -285,7 +285,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
 
   void _updateValueListener() {
     appValueNotifier.streamInformationUpdateNotifier(
-        data: StreamInformationStatusData(position: _controller.value.position));
+        data: StreamInformationStatusData(position: _controller.value.position, duration: _controller.value.duration));
   }
 
   void _seekSeconds({required int seconds}) {
@@ -315,6 +315,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
             padding: const EdgeInsets.only(top: 20.0),
           ),
           Text(widget.text),
+          /* not needed atm
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -349,12 +350,17 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
               ),
               const Wrap()
             ],
-          ),
+          ),*/
           ValueListenableBuilder(
             valueListenable: appValueNotifier.valueNotifier,
             builder: (BuildContext context, dynamic tvalue, Widget? child) {
               StreamInformationStatusData data = tvalue as StreamInformationStatusData;
-              return Text('stream position: ${data.position.toString()}');
+              return Column(
+                children: [
+                  Text('stream duration: ${data.duration.toString()}'),
+                  Text('stream position: ${data.position.toString()}'),
+                ],
+              );
             },
           ),
           streamingUrl.isEmpty
@@ -362,7 +368,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
               : Container(
                   padding: const EdgeInsets.fromLTRB(200, 0, 200, 0),
                   child: AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
+                    aspectRatio: 16 / 9,
                     child: Stack(
                       alignment: Alignment.bottomCenter,
                       children: <Widget>[
@@ -381,14 +387,21 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
 
 class StreamInformationStatusData {
   final Duration position;
+  final DurationRange duration;
 
-  StreamInformationStatusData({required this.position});
+  StreamInformationStatusData({
+    required this.position,
+    required this.duration,
+  });
 }
 
 class AppValueNotifier {
-  ValueNotifier<StreamInformationStatusData> valueNotifier =
-      ValueNotifier(StreamInformationStatusData(position: const Duration(seconds: 0)));
-  void streamInformationUpdateNotifier({required StreamInformationStatusData data}) {
-    valueNotifier.value = data;
-  }
+  ValueNotifier<StreamInformationStatusData> valueNotifier = ValueNotifier(StreamInformationStatusData(
+    position: const Duration(seconds: 0),
+    duration: DurationRange(
+      const Duration(seconds: 0),
+      const Duration(seconds: 0),
+    ),
+  ));
+  void streamInformationUpdateNotifier({required StreamInformationStatusData data}) => valueNotifier.value = data;
 }
