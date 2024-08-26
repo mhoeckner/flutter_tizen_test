@@ -6,6 +6,13 @@ import 'package:dio/dio.dart';
 import 'package:video_player_avplay/video_player.dart';
 import 'package:video_player_avplay/video_player_platform_interface.dart';
 
+class MyLogFilter extends LogFilter {
+  @override
+  bool shouldLog(LogEvent event) {
+    return true;
+  }
+}
+
 void main() {
   const String defaultAuth = String.fromEnvironment('defaultAuth', defaultValue: '');
   runApp(
@@ -47,7 +54,9 @@ class InputWidget extends StatefulWidget {
 class _InputWidgetState extends State<InputWidget> {
   Connector connector = const Connector(pin: '');
   late TextEditingController textController;
-  final logger = Logger();
+  final logger = Logger(
+    filter: MyLogFilter(),
+  );
 
   @override
   void initState() {
@@ -94,7 +103,7 @@ class _InputWidgetState extends State<InputWidget> {
             ),
           )
         : DefaultTabController(
-            length: 6,
+            length: 8,
             initialIndex: 0,
             child: Scaffold(
               key: const ValueKey<String>('dash_test_player'),
@@ -127,6 +136,14 @@ class _InputWidgetState extends State<InputWidget> {
                       icon: Icon(Icons.cloud),
                       text: "Stream 6",
                     ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 7",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.cloud),
+                      text: "Stream 8",
+                    ),
                   ],
                 ),
               ),
@@ -141,8 +158,24 @@ class _InputWidgetState extends State<InputWidget> {
                     ep: 'stream',
                   ),
                   _DashRomoteVideo(
+                    text: 'OCI Packager: DASH Live Stream FreeToAir 2',
+                    id: '5',
+                    connector: connector,
+                    drm: false,
+                    logger: logger,
+                    ep: 'stream',
+                  ),
+                  _DashRomoteVideo(
                     text: 'OCI Packager: DASH Live Stream DRM Widevine',
                     id: '2361',
+                    connector: connector,
+                    drm: true,
+                    logger: logger,
+                    ep: 'stream',
+                  ),
+                  _DashRomoteVideo(
+                    text: 'OCI Packager: DASH Live Stream DRM Widevine 2',
+                    id: '87',
                     connector: connector,
                     drm: true,
                     logger: logger,
@@ -223,9 +256,6 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   }
 
   void _startStream({required ConnectorResponse response}) {
-    try {
-      _controller.dispose();
-    } catch (_) {}
     if (!widget.drm) {
       widget.logger.i('start free to air stream ${response.url}');
       _controller = VideoPlayerController.network(
@@ -279,6 +309,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
 
   @override
   void dispose() {
+    widget.logger.i('dispose av player...');
     _controller.dispose();
     super.dispose();
   }
@@ -288,12 +319,14 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
         data: StreamInformationStatusData(position: _controller.value.position, duration: _controller.value.duration));
   }
 
+  /* seeking disabled atm
   void _seekSeconds({required int seconds}) {
     Duration newPosition =
         seconds > 0 ? Duration(seconds: _controller.value.position.inSeconds + seconds) : Duration.zero;
     widget.logger.i('seek to position $newPosition');
     _controller.seekTo(newPosition);
   }
+  */
 
   @override
   Widget build(BuildContext context) {
