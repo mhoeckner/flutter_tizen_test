@@ -319,14 +319,15 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
         data: StreamInformationStatusData(position: _controller.value.position, duration: _controller.value.duration));
   }
 
-  /* seeking disabled atm
   void _seekSeconds({required int seconds}) {
-    Duration newPosition =
-        seconds > 0 ? Duration(seconds: _controller.value.position.inSeconds + seconds) : Duration.zero;
+    Duration newPosition = seconds == 0
+        ? Duration.zero
+        : seconds > 0
+            ? Duration(seconds: _controller.value.position.inSeconds + seconds)
+            : Duration(seconds: _controller.value.position.inSeconds - seconds);
     widget.logger.i('seek to position $newPosition');
     _controller.seekTo(newPosition);
   }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -348,7 +349,6 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
             padding: const EdgeInsets.only(top: 20.0),
           ),
           Text(widget.text),
-          /* not needed atm
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -383,7 +383,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
               ),
               const Wrap()
             ],
-          ),*/
+          ),
           ValueListenableBuilder(
             valueListenable: appValueNotifier.valueNotifier,
             builder: (BuildContext context, dynamic tvalue, Widget? child) {
@@ -399,7 +399,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
           streamingUrl.isEmpty
               ? const Center(child: CircularProgressIndicator())
               : Container(
-                  padding: const EdgeInsets.fromLTRB(200, 0, 200, 0),
+                  padding: const EdgeInsets.fromLTRB(250, 0, 250, 0),
                   child: AspectRatio(
                     aspectRatio: 16 / 9,
                     child: Stack(
