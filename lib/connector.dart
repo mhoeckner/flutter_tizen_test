@@ -1,6 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+class StreamingItem {
+  final String id;
+  final String ep;
+  final bool drm;
+
+  StreamingItem({required this.id, required this.ep, required this.drm});
+}
+
 class ConnectorResponse {
   final String url;
   final String drmToken;
@@ -20,9 +28,9 @@ class Connector {
 
   Connector copyWith({required String pin}) => Connector(pin: pin);
 
-  Future<ConnectorResponse> getStream({required String id, required String ep}) async {
+  Future<ConnectorResponse> getStream({required StreamingItem streamingItem}) async {
     final dio = Dio();
-    Response res = await dio.get('$api?pin=$pin&ep=$ep&chid=$id',
+    Response res = await dio.get('$api?pin=$pin&ep=${streamingItem.ep}&chid=${streamingItem.id}',
         options: Options(
           contentType: Headers.jsonContentType,
           responseType: ResponseType.json,

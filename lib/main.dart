@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tizen_test/connector.dart';
@@ -102,119 +104,28 @@ class _InputWidgetState extends State<InputWidget> {
               ),
             ),
           )
-        : DefaultTabController(
-            length: 8,
-            initialIndex: 0,
-            child: Scaffold(
-              key: const ValueKey<String>('dash_test_player'),
-              appBar: AppBar(
-                title: const Text('DASH video player example'),
-                bottom: const TabBar(
-                  isScrollable: true,
-                  tabs: <Widget>[
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Stream 1",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Stream 2",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Stream 3",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Stream 4",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Stream 5",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Stream 6",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Stream 7",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.cloud),
-                      text: "Stream 8",
-                    ),
-                  ],
+        : Material(
+            child: _DashRomoteVideo(
+              text: 'OCI Packager: DRM VOD Stream',
+              connector: connector,
+              logger: logger,
+              streamingItems: [
+                StreamingItem(
+                  id: '806',
+                  drm: true,
+                  ep: 'pvr',
                 ),
-              ),
-              body: TabBarView(
-                children: <Widget>[
-                  _DashRomoteVideo(
-                    text: 'OCI Packager: DASH Live Stream FreeToAir',
-                    id: '2366',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'stream',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'OCI Packager: DASH Live Stream FreeToAir 2',
-                    id: '5',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'stream',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'OCI Packager: DASH Live Stream DRM Widevine',
-                    id: '2361',
-                    connector: connector,
-                    drm: true,
-                    logger: logger,
-                    ep: 'stream',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'OCI Packager: DASH Live Stream DRM Widevine 2',
-                    id: '87',
-                    connector: connector,
-                    drm: true,
-                    logger: logger,
-                    ep: 'stream',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'OCI Packager: DASH Static FreeToAir',
-                    id: '612',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'pvr',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'OCI Packager: DASH DRM Static',
-                    id: '733',
-                    connector: connector,
-                    drm: true,
-                    logger: logger,
-                    ep: 'pvr',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'DASH Low Latency Harmonic Live Stream',
-                    id: '1',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'stream',
-                  ),
-                  _DashRomoteVideo(
-                    text: 'DASH Akamai Live Stream',
-                    id: '2',
-                    connector: connector,
-                    drm: false,
-                    logger: logger,
-                    ep: 'stream',
-                  ),
-                ],
-              ),
+                StreamingItem(
+                  id: '733',
+                  drm: true,
+                  ep: 'pvr',
+                ),
+                StreamingItem(
+                  id: '803',
+                  drm: true,
+                  ep: 'pvr',
+                )
+              ],
             ),
           );
   }
@@ -223,17 +134,13 @@ class _InputWidgetState extends State<InputWidget> {
 class _DashRomoteVideo extends StatefulWidget {
   final String text;
   final Connector connector;
-  final String id;
-  final String ep;
-  final bool drm;
+  final List<StreamingItem> streamingItems;
   final Logger logger;
 
   const _DashRomoteVideo({
     required this.text,
-    required this.id,
     required this.connector,
-    required this.ep,
-    required this.drm,
+    required this.streamingItems,
     required this.logger,
   });
 
@@ -244,35 +151,48 @@ class _DashRomoteVideo extends StatefulWidget {
 class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   String streamingUrl = '';
   late VideoPlayerController _controller;
+  VideoPlayerController? _preloadController;
   AppValueNotifier appValueNotifier = AppValueNotifier();
+  bool doPreload = true;
+  bool nextStream = false;
+  int streamStarts = 1;
+  final Random _random = Random();
+
+  StreamingItem _getStreamingItem() => widget.streamingItems[_random.nextInt(widget.streamingItems.length)];
 
   @override
   void initState() {
     super.initState();
 
     widget.connector
-        .getStream(id: widget.id, ep: widget.ep)
+        .getStream(streamingItem: _getStreamingItem())
         .then((ConnectorResponse response) => _startStream(response: response));
   }
 
-  void _startStream({required ConnectorResponse response}) {
-    if (!widget.drm) {
-      widget.logger.i('start free to air stream ${response.url}');
-      _controller = VideoPlayerController.network(
-        response.url,
+  VideoPlayerController _createController({
+    required String url,
+    required String drmToken,
+    required Map<String, dynamic> playerOptions,
+  }) {
+    if (drmToken.isEmpty) {
+      widget.logger.i('start free to air stream $url');
+      return VideoPlayerController.network(
+        url,
         formatHint: VideoFormat.dash,
+        playerOptions: playerOptions,
       );
     } else {
-      widget.logger.i('start drm protected stream ${response.url}');
-      _controller = VideoPlayerController.network(
-        response.url,
+      widget.logger.i('create drm protected controller $url');
+      return VideoPlayerController.network(
+        url,
+        playerOptions: playerOptions,
         formatHint: VideoFormat.dash,
         drmConfigs: DrmConfigs(
           type: DrmType.widevine,
           licenseCallback: (Uint8List challenge) async {
             final dio = Dio();
             widget.logger.d('send license request to vmx license server...');
-            widget.logger.d('token: ${response.drmToken}');
+            widget.logger.d('token: $drmToken');
             return dio
                 .post(
               'https://multidrm.core.verimatrixcloud.net/widevine',
@@ -280,7 +200,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
               options: Options(
                 responseType: ResponseType.bytes,
                 headers: {
-                  'authorization': response.drmToken,
+                  'authorization': drmToken,
                 },
               ),
             )
@@ -294,6 +214,31 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
         ),
       );
     }
+  }
+
+  void _preloadStream({required ConnectorResponse response}) {
+    _preloadController = _createController(
+      url: response.url,
+      drmToken: response.drmToken,
+      playerOptions: {
+        'prebufferMode': true,
+      },
+    );
+    _preloadController!.initialize().then(
+          (_) => widget.logger.i('preload stream initialized'),
+        );
+    _preloadController!.addListener(_updateValueListener);
+  }
+
+  void _startStream({required ConnectorResponse response}) {
+    _controller = _createController(
+      url: response.url,
+      drmToken: response.drmToken,
+      playerOptions: {
+        'prebufferMode': false,
+        'startPosition': 5.0,
+      },
+    );
 
     _controller.addListener(_updateValueListener);
 
@@ -311,109 +256,155 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
   void dispose() {
     widget.logger.i('dispose av player...');
     _controller.dispose();
+    _preloadController?.dispose();
     super.dispose();
   }
 
-  void _updateValueListener() {
-    appValueNotifier.streamInformationUpdateNotifier(
-        data: StreamInformationStatusData(position: _controller.value.position, duration: _controller.value.duration));
+  void _startNextStream() {
+    if (nextStream) return;
+    nextStream = true;
+    if (_preloadController != null) {
+      widget.logger.d('found prebuffer stream - switch');
+      VideoPlayerController oldController = _controller;
+      _controller = _preloadController!;
+      _preloadController = null;
+      oldController.deactivate().then((value) {
+        oldController.dispose();
+      });
+      _controller.activate().then((value) {
+        _controller.play();
+        int newStreamStart = streamStarts + 1;
+        setState(() {
+          doPreload = true;
+          streamStarts = newStreamStart;
+          nextStream = false;
+        });
+      });
+    } else {
+      nextStream = false;
+    }
   }
 
-  /* seeking disabled atm
+  void _updateValueListener() async {
+    if (_controller.value.isCompleted) {
+      widget.logger.i('stream finished');
+    } else {
+      int pos = _controller.value.duration.end.inSeconds - _controller.value.position.inSeconds;
+      if (pos < 2 && pos > 0) {
+        _startNextStream();
+      } else if (doPreload && pos <= 5 && pos > 0) {
+        doPreload = false;
+        //do preload 5 seconds before stream end
+        widget.connector
+            .getStream(streamingItem: _getStreamingItem())
+            .then((ConnectorResponse response) => _preloadStream(response: response));
+      }
+      appValueNotifier.streamInformationUpdateNotifier(
+        data: StreamInformationStatusData(
+          position: _controller.value.position,
+          duration: _controller.value.duration,
+        ),
+      );
+    }
+  }
+
   void _seekSeconds({required int seconds}) {
     Duration newPosition =
         seconds > 0 ? Duration(seconds: _controller.value.position.inSeconds + seconds) : Duration.zero;
     widget.logger.i('seek to position $newPosition');
     _controller.seekTo(newPosition);
   }
-  */
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      onKeyEvent: (node, event) {
-        if (event.runtimeType == KeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter) {
-          try {
-            widget.logger.i("try start stream...");
-            _controller.play();
-          } catch (_) {
-            widget.logger.e("play failed -> $_");
-          }
-        }
-        return KeyEventResult.ignored;
-      },
-      child: Column(
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.only(top: 20.0),
-          ),
-          Text(widget.text),
-          /* not needed atm
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Wrap(),
-              ElevatedButton(
-                child: const Text(
-                  'Seek to start',
-                  style: TextStyle(fontSize: 20.0),
-                ),
-                onPressed: () {
-                  _seekSeconds(seconds: 0);
-                },
+    return Column(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.only(top: 20.0),
+        ),
+        Text(widget.text),
+        Text('Stream Start No. $streamStarts'),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Wrap(),
+            ElevatedButton(
+              onPressed: () {
+                _seekSeconds(seconds: 0);
+              },
+              autofocus: true,
+              child: const Text(
+                'Seek to start',
+                style: TextStyle(fontSize: 20.0),
               ),
-              ElevatedButton(
-                child: const Text(
-                  'Seek 5s back',
-                  style: TextStyle(fontSize: 20.0),
-                ),
-                onPressed: () {
-                  _seekSeconds(seconds: -5);
-                },
+            ),
+            ElevatedButton(
+              child: const Text(
+                'Seek 5s back',
+                style: TextStyle(fontSize: 20.0),
               ),
-              ElevatedButton(
-                child: const Text(
-                  'Seek 5s forward',
-                  style: TextStyle(fontSize: 20.0),
-                ),
-                onPressed: () {
-                  _seekSeconds(seconds: 5);
-                },
+              onPressed: () {
+                _seekSeconds(seconds: -5);
+              },
+            ),
+            ElevatedButton(
+              child: const Text(
+                'Seek 5s forward',
+                style: TextStyle(fontSize: 20.0),
               ),
-              const Wrap()
-            ],
-          ),*/
-          ValueListenableBuilder(
-            valueListenable: appValueNotifier.valueNotifier,
-            builder: (BuildContext context, dynamic tvalue, Widget? child) {
-              StreamInformationStatusData data = tvalue as StreamInformationStatusData;
-              return Column(
-                children: [
-                  Text('stream duration: ${data.duration.toString()}'),
-                  Text('stream position: ${data.position.toString()}'),
-                ],
-              );
-            },
-          ),
-          streamingUrl.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : Container(
-                  padding: const EdgeInsets.fromLTRB(200, 0, 200, 0),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: <Widget>[
-                        VideoPlayer(_controller),
-                        ClosedCaption(text: _controller.value.caption.text),
-                        VideoProgressIndicator(_controller, allowScrubbing: true),
-                      ],
-                    ),
+              onPressed: () {
+                _seekSeconds(seconds: 5);
+              },
+            ),
+            ElevatedButton(
+              child: const Text(
+                'Seek to 10s before end',
+                style: TextStyle(fontSize: 20.0),
+              ),
+              onPressed: () {
+                if (_controller.value.isInitialized) {
+                  _seekSeconds(
+                    seconds: _controller.value.duration.end.inSeconds - 10,
+                  );
+                }
+              },
+            ),
+            const Wrap()
+          ],
+        ),
+        ValueListenableBuilder(
+          valueListenable: appValueNotifier.valueNotifier,
+          builder: (BuildContext context, dynamic tvalue, Widget? child) {
+            StreamInformationStatusData data = tvalue as StreamInformationStatusData;
+            return Column(
+              children: [
+                Text('stream duration: ${data.duration.toString()}'),
+                Text('stream position: ${data.position.toString()}'),
+              ],
+            );
+          },
+        ),
+        streamingUrl.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : Container(
+                padding: const EdgeInsets.fromLTRB(200, 0, 200, 0),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: <Widget>[
+                      VideoPlayer(
+                        _controller,
+                        key: Key('video_player_no_$streamStarts'),
+                      ),
+                      ClosedCaption(text: _controller.value.caption.text),
+                      VideoProgressIndicator(_controller, allowScrubbing: true),
+                    ],
                   ),
                 ),
-        ],
-      ),
+              ),
+      ],
     );
   }
 }
