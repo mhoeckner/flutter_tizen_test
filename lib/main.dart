@@ -222,7 +222,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
       drmToken: response.drmToken,
       playerOptions: {
         'prebufferMode': true,
-        'startPosition': 5.0,
+        'startPosition': 5,
       },
     );
     _preloadController!.initialize().then(
@@ -237,7 +237,7 @@ class _DashRomoteVideoState extends State<_DashRomoteVideo> {
       drmToken: response.drmToken,
       playerOptions: {
         'prebufferMode': false,
-        'startPosition': 5.0,
+        'startPosition': 5,
       },
     );
 
